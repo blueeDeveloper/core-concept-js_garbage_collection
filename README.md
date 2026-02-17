@@ -1,4 +1,4 @@
-Memory management in JavaScript is mostly automated, but understanding the Mark-and-Sweep algorithm is crucial for writing memory-efficient code and avoiding leaks.
+Memory management in JavaScript is mostly automated, but understanding the Mark-and-Sweep algorithm is crucial for writing memory-efficient code and avoiding leaks. JavaScript uses the Mark-and-Sweep algorithm for garbage collection. It identifies "reachable" objects starting from the root and "sweeps" away anything left over. This effectively handles circular references, but developers should still be wary of global variables and uncleared timers to prevent memory leaks.
 
 🗑️ Garbage Collection: Mark-and-Sweep
 As of 2026, Mark-and-Sweep remains the standard garbage collection (GC) strategy used by modern engines like V8 (Chrome/Node.js). It moves away from the limitations of "reference counting" by focusing on reachability.
@@ -32,6 +32,12 @@ function circular() {
 // Reference counting wouldn't delete them, but Mark-and-Sweep 
 // sees they are unreachable from the root and cleans them up.
 ```
+
+⚠️ Common Memory Leak Patterns
+Even with a smart algorithm, you can "trick" the GC into keeping memory it doesn't need:
+
+<img width="679" height="188" alt="Screenshot 2026-02-16 at 11 54 38 PM" src="https://github.com/user-attachments/assets/90c09016-b75c-4b06-a565-c4932df985e9" />
+
 
 
 
