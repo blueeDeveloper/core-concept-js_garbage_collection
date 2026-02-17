@@ -41,4 +41,70 @@ Even with a smart algorithm, you can "trick" the GC into keeping memory it doesn
 
 
 
+💡 Best Practices for Memory Management
+1. Nullify References to Large Objects
+If you are finished with a large object or array but the containing scope remains active (like a global or a long-running parent function), manually set the variable to null. This breaks the "reachability" path for the garbage collector.
+
+
+```
+let largeData = new Array(1000000).fill("🚀");
+processData(largeData);
+
+// Explicitly break the link
+largeData = null;
+```
+
+
+2. Clean Up After DOM Interactions
+A "Detached DOM node" occurs when you remove an element from the document, but a JavaScript variable still holds a reference to it. The GC cannot sweep the node because it's technically still "reachable" via your variable.
+
+
+```
+const button = document.getElementById('launch-btn');
+
+function removeButton() {
+  document.body.removeChild(button);
+  // The node is gone from UI, but stays in memory unless we do:
+  // button = null;
+}
+```
+
+
+3. Manage Subscriptions and Observers
+Event listeners, setInterval, and Promises that never resolve are the most common sources of "silent" leaks.
+
+Timers: Always store the ID and clear it when the task is done.
+
+Events: In frameworks like React or Vue, use cleanup hooks (useEffect return or beforeUnmount) to call removeEventListener.
+
+4. Use WeakMap and WeakSet
+If you need to associate data with an object without preventing that object from being garbage collected, use WeakMap. Unlike a standard Map, a WeakMap holds "weak" references; if no other references to the key-object exist, the entry is swept.
+
+
+```
+let user = { name: "Alex" };
+const metadata = new WeakMap();
+
+metadata.set(user, "Last login: 2026-02-16");
+
+// If user is deleted or goes out of scope, metadata entry is automatically GC'd
+user = null;
+```
+
+🛠️ How to Debug in Chrome
+For your GitHub contributors, you might want to add a small "Debugging" section:
+
+Open Chrome DevTools > Memory tab.
+
+Take a Heap Snapshot.
+
+Perform an action in your app, then click the Trash Can icon (Collect Garbage).
+
+Take a second snapshot and use the "Comparison" view to see what didn't get cleared.
+
+
+
+
+
+
 
