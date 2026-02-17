@@ -18,4 +18,21 @@ Compacting (Optional): Many engines include a third step where they move the rem
 🧱 Why it’s better than Reference Counting
 Older algorithms simply counted how many references pointed to an object. This failed miserably with circular references:
 
+```
+function circular() {
+  let objA = {};
+  let objB = {};
+  
+  objA.child = objB; // A points to B
+  objB.parent = objA; // B points to A
+  
+  return "Done";
+}
+// After the function runs, A and B still point to each other.
+// Reference counting wouldn't delete them, but Mark-and-Sweep 
+// sees they are unreachable from the root and cleans them up.
+```
+
+
+
 
