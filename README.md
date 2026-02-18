@@ -101,6 +101,49 @@ Take a second snapshot and use the "Comparison" view to see what didn't get clea
 
 
 
+5. The V8 Heap Structure: Young vs. Old Generation
+Modern engines don't just have one big bucket of memory; they use Generational Garbage Collection. This is based on the "Infant Mortality Hypothesis"—most objects die almost immediately after creation.
+
+New Space (Young Generation): This is where new objects are allocated. It is small (1MB–8MB) and cleaned very quickly using a "Scavenge" algorithm.
+
+Old Space (Old Generation): If an object survives two "Scavenge" cycles in the New Space, it is promoted to the Old Space. This area is much larger and is where the full Mark-and-Sweep-Compact algorithm runs.
+
+6. Orinoco: Parallel, Incremental, and Concurrent GC
+In the past, Garbage Collection caused "Stop-the-World" pauses where the main thread froze, leading to UI jank. Modern V8 uses the Orinoco project's techniques to prevent this:
+
+Parallel: The main thread and helper threads perform GC work at the same time to speed it up.
+
+Incremental: The marking phase is broken into tiny chunks. The engine marks a bit, runs some JS, marks a bit more, etc. This keeps pauses under 1ms.
+
+Concurrent: Helper threads do the heavy lifting of sweeping and compacting in the background while the main JS thread continues to execute.
+
+7. Memory Leaks: The "Closure" Trap
+You mentioned timers and DOM nodes, but the most subtle leak in JS is the Closure Scope Leak. If a large object is in the same lexical scope as a closure that is exported or saved, that large object can't be cleared—even if the closure doesn't use it.
+
+```
+let replaceThing = function () {
+  let originalThing = new Array(1000000).fill('📦'); // Huge object
+  
+  // This closure is never called, but it shares the scope!
+  let unused = function () {
+    if (originalThing) console.log("hi");
+  };
+
+  return function () {
+    // This closure is exported, keeping the entire 
+    // scope (including originalThing) alive.
+  };
+};
+```
+Pro Tip: Advise developers to "localize" variables by moving large objects into their own block scopes {} if they aren't needed by the returned closures.
+
+8. Identifying "Detached" Elements
+While you mentioned DOM cleanup, it's worth noting the specific terminology for debugging. A Detached DOM Tree is a set of nodes that are no longer in the document but are still pointed to by a JavaScript object (like an array or a global variable).
+
+The Problem: These nodes can't be GC'd because they are reachable from the root.
+
+The Fix: Use the Memory Tab in Chrome and filter for "Detached" to find these invisible memory hogs.
+
 
 
 
