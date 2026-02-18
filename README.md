@@ -95,11 +95,8 @@ user = null;
 For your GitHub contributors, you might want to add a small "Debugging" section:
 
 Open Chrome DevTools > Memory tab.
-
 Take a Heap Snapshot.
-
 Perform an action in your app, then click the Trash Can icon (Collect Garbage).
-
 Take a second snapshot and use the "Comparison" view to see what didn't get cleared.
 
 
